@@ -90,6 +90,7 @@
     X(whe5x,      S1_bit, HeatCostAllocationMeter, WHE5X, Whe5x)       \
     X(lse_08,     S1_bit|C1_bit, HeatCostAllocationMeter, LSE_08, LSE_08) \
     X(weh_07,     C1_bit, WaterMeter,       WEH_07,       WEH_07)      \
+    X(unismart,   T1_bit, GasMeter,       UNISMART, Unismart)  \
 
 
 enum class MeterDriver {
