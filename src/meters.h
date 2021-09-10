@@ -296,6 +296,27 @@ struct WaterMeter : public virtual Meter
     virtual string timeBursting();
 };
 
+struct GasMeter : public virtual Meter
+{
+    virtual double totalGasConsumption(Unit u); // m3
+    virtual bool  hasTotalGasConsumption();
+    virtual double targetGasConsumption(Unit u); // m3
+    virtual bool  hasTargetGasConsumption();
+    virtual double maxFlow(Unit u); // m3/s
+    virtual bool  hasMaxFlow();
+    virtual double flowTemperature(Unit u); // °C
+    virtual bool hasFlowTemperature();
+    virtual double externalTemperature(Unit u); // °C
+    virtual bool hasExternalTemperature();
+
+    virtual string statusHumanReadable();
+    virtual string status();
+    virtual string timeDry();
+    virtual string timeReversed();
+    virtual string timeLeaking();
+    virtual string timeBursting();
+};
+
 struct HeatMeter : public virtual Meter
 {
     virtual double totalEnergyConsumption(Unit u); // kwh
