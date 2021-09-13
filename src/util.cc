@@ -141,6 +141,11 @@ int char2int(char input)
     return -1;
 }
 
+bool isHexChar(uchar c)
+{
+    return char2int(c) != -1;
+}
+
 // The byte 0x13 i converted into the integer value 13.
 uchar bcd2bin(uchar c)
 {
@@ -156,6 +161,30 @@ uchar revbcd2bin(uchar c)
 uchar reverse(uchar c)
 {
     return ((c&15)<<4) | (c>>4);
+}
+
+bool isHexString(const string &txt, bool *invalid)
+{
+    return isHexString(txt.c_str(), invalid);
+}
+
+bool isHexString(const char* txt, bool *invalid)
+{
+    *invalid = false;
+    // An empty string is not an hex string.
+    if (*txt == 0) return false;
+
+    const char *i = txt;
+    int n = 0;
+    for (;;)
+    {
+        char c = *i++;
+        if (c == 0) break;
+        n++;
+        if (char2int(c) == -1) return false;
+    }
+    if (n%2 == 1) *invalid = true;
+    return true;
 }
 
 bool hex2bin(const char* src, vector<uchar> *target)

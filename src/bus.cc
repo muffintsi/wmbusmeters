@@ -213,6 +213,10 @@ shared_ptr<WMBus> BusManager::createWmbusObject(Detected *detected, Configuratio
         verbose("(rawtty) on %s\n", detected->found_file.c_str());
         wmbus = openRawTTY(*detected, serial_manager_, serial_override);
         break;
+    case DEVICE_HEXTTY:
+        verbose("(hextty) on %s\n", detected->found_file.c_str());
+        wmbus = openHexTTY(*detected, serial_manager_, serial_override);
+        break;
     case DEVICE_RTLWMBUS:
         wmbus = openRTLWMBUS(*detected, config->bin_dir, config->daemon, serial_manager_, serial_override);
         break;
@@ -383,7 +387,7 @@ void BusManager::detectAndConfigureWmbusDevices(Configuration *config, Detection
                 continue;
             }
         }
-        if (specified_device.file == "" && specified_device.command == "")
+        if (specified_device.file == "" && specified_device.command == "" && specified_device.hex == "")
         {
             // File/tty/command not specified, use auto scan later to find actual device file/tty.
             must_auto_find_ttys |= usesTTY(specified_device.type);
@@ -403,6 +407,12 @@ void BusManager::detectAndConfigureWmbusDevices(Configuration *config, Detection
             Detected detected = detectWMBusDeviceWithCommand(specified_device, config->default_device_linkmodes, serial_manager_);
             specified_device.handled = true;
             openBusDeviceAndPotentiallySetLinkmodes(config, "config", &detected);
+        }
+        if (specified_device.hex != "")
+        {
+            Detected detected = detectWMBusDeviceWithFileOrHex(specified_device, config->default_device_linkmodes, serial_manager_);
+            openBusDeviceAndPotentiallySetLinkmodes(config, "config", &detected);
+            specified_device.handled = true;
         }
         if (specified_device.file != "")
         {
@@ -450,7 +460,7 @@ void BusManager::detectAndConfigureWmbusDevices(Configuration *config, Detection
                 continue;
             }
 
-            Detected detected = detectWMBusDeviceWithFile(specified_device, config->default_device_linkmodes, serial_manager_);
+            Detected detected = detectWMBusDeviceWithFileOrHex(specified_device, config->default_device_linkmodes, serial_manager_);
 
             if (detected.found_type == DEVICE_UNKNOWN)
             {

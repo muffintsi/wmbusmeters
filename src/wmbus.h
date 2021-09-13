@@ -39,6 +39,7 @@ bool trimCRCsFrameFormatB(std::vector<uchar> &payload);
     X(IM871A,im871a,true,false,detectIM871AIM170A)   \
     X(IM170A,im170a,true,false,detectSKIP)           \
     X(RAWTTY,rawtty,true,false,detectRAWTTY)         \
+    X(HEXTTY,hextty,true,false,detectSKIP)           \
     X(RC1180,rc1180,true,false,detectRC1180)         \
     X(RTL433,rtl433,false,true,detectRTL433)         \
     X(RTLWMBUS,rtlwmbus,false,true,detectRTLWMBUS)   \
@@ -157,7 +158,8 @@ struct SpecifiedDevice
     std::string bus_alias; // A bus alias, necessary for C2/T2 meters and mbus.
     int index; // 0,1,2,3 the order on the command line / config file.
     std::string file; // simulation_meter.txt, stdin, file.raw, /dev/ttyUSB0
-    bool is_tty{}, is_stdin{}, is_file{}, is_simulation{};
+    std::string hex; // a hex string supplied on the command line becomes a hex simulation.
+    bool is_tty{}, is_stdin{}, is_file{}, is_simulation{}, is_hex_simulation{};
     WMBusDeviceType type; // im871a, rtlwmbus
     std::string id; // 12345678 for wmbus dongles or 0,1 for rtlwmbus indexes.
     std::string extras; // Extra device specific settings.
@@ -180,6 +182,7 @@ struct Detected
     SpecifiedDevice specified_device {}; // Device as specified from the command line / config file.
 
     string found_file; // The device file to use.
+    string found_hex;  // An immediate hex string is supplied.
     string found_device_id; // An "unique" identifier, typically the id used by the dongle as its own wmbus id, if it transmits.
     WMBusDeviceType found_type {};  // IM871A, AMB8465 etc.
     int found_bps {}; // Serial speed of tty.
@@ -610,9 +613,9 @@ struct WMBus
     virtual ~WMBus() = 0;
 };
 
-Detected detectWMBusDeviceWithFile(SpecifiedDevice &specified_device,
-                                   LinkModeSet default_linkmodes,
-                                   shared_ptr<SerialCommunicationManager> manager);
+Detected detectWMBusDeviceWithFileOrHex(SpecifiedDevice &specified_device,
+                                        LinkModeSet default_linkmodes,
+                                        shared_ptr<SerialCommunicationManager> manager);
 Detected detectWMBusDeviceWithCommand(SpecifiedDevice &specified_device,
                                       LinkModeSet default_linkmodes,
                                       shared_ptr<SerialCommunicationManager> handler);
@@ -628,6 +631,9 @@ shared_ptr<WMBus> openAMB8465(Detected detected,
                               shared_ptr<SerialCommunicationManager> manager,
                               shared_ptr<SerialDevice> serial_override);
 shared_ptr<WMBus> openRawTTY(Detected detected,
+                             shared_ptr<SerialCommunicationManager> manager,
+                             shared_ptr<SerialDevice> serial_override);
+shared_ptr<WMBus> openHexTTY(Detected detected,
                              shared_ptr<SerialCommunicationManager> manager,
                              shared_ptr<SerialDevice> serial_override);
 shared_ptr<WMBus> openMBUS(Detected detected,
